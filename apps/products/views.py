@@ -12,14 +12,14 @@ class CategoryListAPIView(APIView):
     def get(self, request):
         products = Category.objects.all()
         serializer = CategorySerializer(products, many=True)
-        return Response({"products": serializer.data, "message": "Categories", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        return Response({"categories": serializer.data, "message": "Categories", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
     
 class ProductListAPIView(APIView):
     def get(self, request):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
 
-        return Response({"products": serializer.data, "message": "Products", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        return Response({"product": serializer.data, "message": "Products", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
 
 class ProductDetailAPIView(APIView):
     def get(self, request):
@@ -30,5 +30,5 @@ class ProductDetailAPIView(APIView):
             return Response({"product":[], "message": "Product not found", "status": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ProductDetailSerializer(product)
-        return Response({"product": serializer.data, "message": "Product details", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        return Response({"product-details": serializer.data, "message": "Product details", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
         

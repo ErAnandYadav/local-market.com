@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from rest_framework import status
 # Create your views here.
 
 from rest_framework.views import APIView
@@ -11,4 +11,4 @@ class ThemeListCreateAPIView(APIView):
     def get(self, request):
         themes = Theme.objects.all()
         serializer = ThemeSerializer(themes, many=True)
-        return Response(serializer.data)
+        return Response({"themes": serializer.data, "message": "Product details", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
