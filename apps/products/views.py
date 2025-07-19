@@ -3,10 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import *
 from .serializers import *
-from django.shortcuts import get_object_or_404
-
-
-# Create your views here.
+from utils.utils import haversine
 
 class CategoryListAPIView(APIView):
     def get(self, request):
@@ -16,10 +13,38 @@ class CategoryListAPIView(APIView):
     
 class ProductListAPIView(APIView):
     def get(self, request):
-        products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
+        category_id = request.query_params.get("category_id")
+        user_lat = request.query_params.get("user_lat")
+        user_long = request.query_params.get("user_long")
 
-        return Response({"product": serializer.data, "message": "Products", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        if not user_lat or not user_long:
+            return Response({"message": "Latitude and longitude are required", "status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        user_lat = float(user_lat)
+        user_long = float(user_long)
+
+        # Step 1: Filter warehouses within 10km
+        nearby_warehouses = []
+        for warehouse in Warehouse.objects.all():
+            if warehouse.latitude and warehouse.longitude:
+                distance = haversine(user_lat, user_long, warehouse.latitude, warehouse.longitude)
+                print("Distance:", distance)
+                if distance <= 10:
+                    nearby_warehouses.append(warehouse.warehouse_id)
+
+        # Step 2: Filter products via M2M through Inventory
+        if category_id:
+            products = Product.objects.filter(category__category_id=category_id, warehouses__warehouse_id__in=nearby_warehouses).distinct()
+        else:
+            products = Product.objects.filter(warehouses__warehouse_id__in=nearby_warehouses).distinct()
+
+        serializer = ProductSerializer(products, many=True)
+        return Response({
+            "product": serializer.data,
+            "message": "Products within 10km",
+            "status": status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 
 class ProductDetailAPIView(APIView):
     def get(self, request):

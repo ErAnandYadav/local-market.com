@@ -9,6 +9,6 @@ from .serializers import ThemeSerializer
 
 class ThemeListCreateAPIView(APIView):
     def get(self, request):
-        themes = Theme.objects.all()
+        themes = Theme.objects.first()
         serializer = ThemeSerializer(themes, many=True)
         return Response({"themes": serializer.data, "message": "Product details", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
