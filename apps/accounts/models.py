@@ -33,7 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    profile_image = models.ImageField(upload_to='media/profile_images/', blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()

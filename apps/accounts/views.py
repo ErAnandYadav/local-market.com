@@ -11,4 +11,4 @@ class ThemeListCreateAPIView(APIView):
     def get(self, request):
         themes = Theme.objects.filter(is_active=True)
         serializer = ThemeSerializer(themes, many=True)
-        return Response({"themes": serializer.data, "message": "Product details", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        return Response({"themes": serializer.data, "message": "Themes", "status": status.HTTP_200_OK}, status=status.HTTP_200_OK)

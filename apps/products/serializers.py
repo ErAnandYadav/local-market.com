@@ -2,17 +2,20 @@ from rest_framework import serializers
 from apps.accounts.serializers import ThemeSerializer
 from .models import *
 
-# class ProductSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Product
-#         fields = '__all__'
-
 class CategorySerializer(serializers.ModelSerializer):
     theme = ThemeSerializer()
     class Meta:
         model = Category
-        fields = ['category_id', 'name', 'theme']
+        fields = ['category_id', 'name', 'icon', 'theme']
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ['subcategory_id', 'name', 'icon']
 
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['brand_id', 'name', 'icon']
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImages
@@ -34,7 +37,8 @@ class ColorSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
+    sub_category = SubCategorySerializer(read_only=True)
+    brand = BrandSerializer(read_only=True)
     sizes = SizeSerializer(many=True, read_only=True)
     colors = ColorSerializer(many=True, read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
@@ -52,7 +56,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'feature_image',
             'discount',
             'city',
-            'category',
+            'sub_category',
+            'brand',
             'sizes',
             'colors',
             'variants',
@@ -63,7 +68,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
+    sub_category = SubCategorySerializer()
+    brand = BrandSerializer()
     images = ProductImageSerializer(many=True)
     ratings = ProductRatingSerializer(many=True)
     average_rating = serializers.SerializerMethodField()

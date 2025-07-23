@@ -7,11 +7,18 @@ class Category(models.Model):
     category_id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     theme = models.ForeignKey(Theme, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100, unique=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    icon = models.ImageField(upload_to='media/category_icons/', null=True, blank=True)
 
     def __str__(self):
         return self.name
+class SubCategory(models.Model):
+    subcategory_id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=100, unique=True, null=True)
+    icon = models.ImageField(upload_to='media/sub_category_icons/', null=True, blank=True)
 
+    def __str__(self):
+        return self.name
 
 class Warehouse(models.Model):
     warehouse_id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
@@ -31,13 +38,20 @@ class Size(models.Model):
     def __str__(self):
         return self.name
 
-
 class Color(models.Model):
     name = models.CharField(max_length=50, unique=True, null=True)  # e.g., "Red", "Blue", "Black"
 
     def __str__(self):
         return self.name
 
+class Brand(models.Model):
+    brand_id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    name = models.CharField(max_length=100, unique=True, null=True)
+    icon = models.ImageField(upload_to='media/brand_icons/', null=True, blank=True)
+
+
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
     product_id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
@@ -70,7 +84,7 @@ class Product(models.Model):
     )
     minimum_wholesale_quantity = models.PositiveIntegerField(null=True, blank=True)
 
-    feature_image = models.ImageField(upload_to='product_images/')
+    feature_image = models.ImageField(upload_to='media/product_images/')
     discount = models.DecimalField(
         max_digits=5, decimal_places=2,
         null=True, blank=True,
@@ -79,7 +93,8 @@ class Product(models.Model):
     )
 
     city = models.CharField(max_length=100, null=True)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products", null=True)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, related_name="products", null=True)
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name="products", null=True)
 
     variants = models.JSONField(null=True, blank=True, help_text="Optional variants for the product")
     delivery_time = models.PositiveIntegerField(help_text="Delivery time in minutes", null=True)
@@ -104,10 +119,9 @@ class Product(models.Model):
         if self.availability_type in ['wholesale', 'both'] and not self.wholesale_price:
             raise ValidationError("Wholesale price is required for wholesale products.")
 
-
 class ProductImages(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images", null=True)
-    image = models.ImageField(upload_to='product_images/', null=True)
+    image = models.ImageField(upload_to='media/product_images/', null=True)
 
     def __str__(self):
         return f"Image for {self.product.name}"
